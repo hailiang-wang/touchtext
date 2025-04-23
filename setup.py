@@ -26,7 +26,7 @@ setup(
     name='touchtext',
     description='A subset APIs replacement of torchtext, as torchtext is retired since 0.18.0 and only support pytorch 2.3.1.',
     long_description=LONGDOC,
-    version='0.0.5',
+    version='0.0.6',
     author='Torchtext Team, Hai Liang W.',
     author_email='hailiang.hl.wang@gmail.com',
     url='https://github.com/hailiang-wang/touchtext',
@@ -41,7 +41,7 @@ setup(
         'Development Status :: 5 - Production/Stable',
     ],
     license='MIT License',
-    packages=['touchtext'],
+    packages=['touchtext', 'touchtext/_internal', 'touchtext/data', 'touchtext/datasets', 'touchtext/vocab'],
     entry_points={
     },
     install_requires=[
