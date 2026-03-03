@@ -78,7 +78,12 @@ class Vocab(nn.Module):
         Returns:
             The index corresponding to the associated token.
         """
-        return self.vocab_term2num[token]
+
+        if token in self.vocab_set:
+            return self.vocab_term2num[token]
+        else:
+            return self.default_index
+
 
     @torch.jit.export
     def set_default_index(self, index: Optional[int]) -> None:

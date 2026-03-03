@@ -2,7 +2,7 @@
 * PyPi https://pypi.org/project/touchtext/
 * Sourcecode https://github.com/hailiang-wang/touchtext
 
-A subset APIs replacement of torchtext, as torchtext is retired since 0.18.0 and only support pytorch 2.3.1.
+A subset APIs replacement of torchtext, as torchtext is retired since 0.18.0 and only support pytorch 2.10.0.
 
 
 ```
