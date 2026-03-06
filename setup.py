@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from setuptools import setup
+from setuptools import find_packages, setup
 
 LONGDOC = """
 touchtext
@@ -26,7 +26,7 @@ setup(
     name='touchtext',
     description='A subset APIs replacement of torchtext, as torchtext is retired since 0.18.0 and only support pytorch 2.3.1.',
     long_description=LONGDOC,
-    version='0.0.8',
+    version='0.1.3',
     author='Torchtext Team, Hai Liang W.',
     author_email='hailiang.hl.wang@gmail.com',
     url='https://github.com/hailiang-wang/touchtext',
@@ -41,12 +41,11 @@ setup(
         'Development Status :: 5 - Production/Stable',
     ],
     license='MIT License',
-    packages=['touchtext', 'touchtext/_internal', 'touchtext/data', 'touchtext/datasets', 'touchtext/vocab'],
+    packages=find_packages() + ['touchtext', 'touchtext/_internal', 'touchtext/data', 'touchtext/datasets', 'touchtext/vocab', "touchtext/datapipes"],
     entry_points={
     },
     install_requires=[
-        'torch >= 2.3.1',
-        'torchdata >= 0.11.0',
+        'torch >= 2.10.0',
         'tqdm',
     ],
 )

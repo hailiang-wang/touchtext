@@ -1,4 +1,6 @@
-import os
+import os, sys
+curdir = os.path.dirname(os.path.abspath(__file__))
+
 from functools import partial
 from typing import Union, Tuple
 import tarfile
@@ -38,6 +40,9 @@ NUM_LINES = {
 
 DATASET_NAME = "Multi30k"
 DATASET_CACHE_DIR = os.path.join(DATASETS_CACHE_DIR, DATASET_NAME)
+
+# e.g. Windows --> C:\Users\Administrator\.cache\torch\text\datasets\Multi30k
+print("touchtext>> DATASET_CACHE_DIR=%s" % DATASET_CACHE_DIR)
 
 
 def _filepath_fn(root, split, _=None):
@@ -86,64 +91,21 @@ def Multi30k(root: str, split: Union[Tuple[str], str], language_pair: Tuple[str]
         "en",
     ), "language_pair must be either ('de','en') or ('en', 'de')"
 
-    if not is_module_available("torchdata"):
-        raise ModuleNotFoundError(
-            "Package `torchdata` not found. Please install following instructions at https://github.com/pytorch/data"
-        )
-    
-    ###################################
-    # Download test
-    ###################################
-    MMT16_TASK1_TEST_TAR_GZ = os.path.join(DATASET_CACHE_DIR, "mmt16_task1_test.tar.gz")
+    src_file_path = os.path.join(root, "%s.%s" % (split, language_pair[0]))
+    tgt_file_path = os.path.join(root, "%s.%s" % (split, language_pair[1]))
 
-    # print(">> CHECK MMT16_TASK1_TEST_TAR_GZ on path", MMT16_TASK1_TEST_TAR_GZ)
-    if not os.path.exists(MMT16_TASK1_TEST_TAR_GZ):
-        print(">> WARN not exist MMT16_TASK1_TEST_TAR_GZ, start to download.")
-        wget_download(URL["test"], DATASET_CACHE_DIR)
-        # open file
-        file = tarfile.open(MMT16_TASK1_TEST_TAR_GZ)
-        # extracting file
-        file.extractall(DATASET_CACHE_DIR)
-        file.close()
+    print("[touchtext] Multi30k load << root %s, split %s, file %s" % (root, split, src_file_path))
+    print("[touchtext] Multi30k load << root %s, split %s, file %s" % (root, split, tgt_file_path))
 
-    from torchdata.datapipes.iter import FileOpener, GDriveReader, HttpReader, IterableWrapper  # noqa
+    src_data_dp = []
+    tgt_data_dp = []
 
-    url_dp = IterableWrapper([URL[split]])
+    with open(src_file_path, "r", encoding="utf-8") as fin:
+        for x in fin.readlines():
+            src_data_dp.append(x.strip())
 
-    cache_compressed_dp = url_dp.on_disk_cache(
-        filepath_fn=partial(_filepath_fn, root, split),
-        hash_dict={_filepath_fn(root, split): MD5[split]},
-        hash_type="sha256",
-    )
-    cache_compressed_dp = HttpReader(cache_compressed_dp).end_caching(mode="wb", same_filepath_fn=True)
+    with open(tgt_file_path, "r", encoding="utf-8") as fin:
+        for x in fin.readlines():
+            tgt_data_dp.append(x.strip())
 
-    cache_compressed_dp_1, cache_compressed_dp_2 = cache_compressed_dp.fork(num_instances=2)
-
-    src_cache_decompressed_dp = cache_compressed_dp_1.on_disk_cache(
-        filepath_fn=partial(_decompressed_filepath_fn, root, split, language_pair, 0)
-    )
-    src_cache_decompressed_dp = (
-        FileOpener(src_cache_decompressed_dp, mode="b")
-        .load_from_tar()
-        .filter(partial(_filter_fn, split, language_pair, 0))
-    )
-    src_cache_decompressed_dp = src_cache_decompressed_dp.end_caching(mode="wb", same_filepath_fn=True)
-
-    tgt_cache_decompressed_dp = cache_compressed_dp_2.on_disk_cache(
-        filepath_fn=partial(_decompressed_filepath_fn, root, split, language_pair, 1)
-    )
-    tgt_cache_decompressed_dp = (
-        FileOpener(tgt_cache_decompressed_dp, mode="b")
-        .load_from_tar()
-        .filter(partial(_filter_fn, split, language_pair, 1))
-    )
-    tgt_cache_decompressed_dp = tgt_cache_decompressed_dp.end_caching(mode="wb", same_filepath_fn=True)
-
-    src_data_dp = FileOpener(src_cache_decompressed_dp, encoding="utf-8").readlines(
-        return_path=False, strip_newline=True
-    )
-    tgt_data_dp = FileOpener(tgt_cache_decompressed_dp, encoding="utf-8").readlines(
-        return_path=False, strip_newline=True
-    )
-
-    return src_data_dp.zip(tgt_data_dp).shuffle().set_shuffle(False).sharding_filter()
+    return list(zip(src_data_dp, tgt_data_dp))
