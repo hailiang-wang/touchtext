@@ -26,7 +26,7 @@ setup(
     name='touchtext',
     description='A subset APIs replacement of torchtext, as torchtext is retired since 0.18.0 and only support pytorch 2.3.1.',
     long_description=LONGDOC,
-    version='0.1.3',
+    version='0.2.0',
     author='Torchtext Team, Hai Liang W.',
     author_email='hailiang.hl.wang@gmail.com',
     url='https://github.com/hailiang-wang/touchtext',
@@ -45,7 +45,7 @@ setup(
     entry_points={
     },
     install_requires=[
-        'torch >= 2.10.0',
+        'torch >= 2.4.1',
         'tqdm',
     ],
 )
